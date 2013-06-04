@@ -53,7 +53,22 @@ var pool = mysql.createPool({
   database  : app.settings.db_schema
 });
 
-exports.sendQuery = function(q){
+function processData (callback) {
+  fetchData(function (err, data) {
+    if (err) {
+      console.log("An error has occured. Abort everything!");
+      callback(err);
+    }
+    data += 1;
+    callback(data);
+  });
+}
+
+exports.callbackFunction = function(r) {
+	console.log(r);
+}
+
+exports.sendQuery = function(q, callbackFunction){
 
 	try {
 		pool.getConnection(function(err,connection) {
@@ -63,27 +78,29 @@ exports.sendQuery = function(q){
 
 			connection.query('SELECT * from favorites limit ?', [limit], function(err, results, fields) {
 			  if (err) throw err;
-				console.log(results);
-			});
-
-			connection.end();
+				//console.log(results);
+				callbackFunction(results);
+			});	
+   	
+    	connection.end();
+	
 		});
 	} catch(e) {
 		system.debug("Database connection failed! : " + e);
 	}
-
 	
 };
 
 // Routes
 app.get('/', routes.index);
 app.get('/users', user.list);
+app.get('/users/search/:username', user.find_by_username);
 
 app.get('/faves', fave.list);
 app.get('/faves/:id', fave.fetch);
 
-
-
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
+module.exports = app;

@@ -1,7 +1,7 @@
+var app = require('../app');
 
 exports.list = function(req, res) {
-    sendQuery();
-		res.send([{name:'fav1'}, {name:'fav2'}, {name:'fav3'}]);
+    app.sendQuery('bob',app.callbackFunction);
 };
  
 exports.fetch = function(req, res) {
