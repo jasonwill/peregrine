@@ -1,18 +1,10 @@
 var app = require('../app');
 
-/*
- * GET users listing.
- */
+exports.find_by_username = function(req, res){	
+	app.sendQuery('SELECT id, name, email, color FROM users WHERE login = ?', [req.params.username], function(results) {
+    res.send(results);
+    
+	  //res.render('user', results);
 
-exports.list = function(req, res){
-  res.send('everyone');
-};
-
-exports.find_by_username = function(req, res){
-	
-	app.sendQuery(req, function(results) {
-    res.send(results)
   });
-	
-	//res.send({id:req.params.id, name: "Bob"});
 };

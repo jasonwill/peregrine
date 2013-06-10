@@ -53,33 +53,16 @@ var pool = mysql.createPool({
   database  : app.settings.db_schema
 });
 
-function processData (callback) {
-  fetchData(function (err, data) {
-    if (err) {
-      console.log("An error has occured. Abort everything!");
-      callback(err);
-    }
-    data += 1;
-    callback(data);
-  });
-}
-
-exports.callbackFunction = function(r) {
-	console.log(r);
-}
-
-exports.sendQuery = function(q, callbackFunction){
+exports.sendQuery = function(q, args, respond){
 
 	try {
 		pool.getConnection(function(err,connection) {
 	  	connection.connect();
 
-		  var limit = 100;
-
-			connection.query('SELECT * from favorites limit ?', [limit], function(err, results, fields) {
+			connection.query(q, args, function(err, results, fields) {
 			  if (err) throw err;
 				//console.log(results);
-				callbackFunction(results);
+				respond(results);
 			});	
    	
     	connection.end();
@@ -91,13 +74,14 @@ exports.sendQuery = function(q, callbackFunction){
 	
 };
 
+
 // Routes
 app.get('/', routes.index);
-app.get('/users', user.list);
 app.get('/users/search/:username', user.find_by_username);
 
-app.get('/faves', fave.list);
-app.get('/faves/:id', fave.fetch);
+app.get('/faves', fave.all_recent);
+app.get('/faves/for/:username', fave.by_favoritee);
+app.get('/faves/by/:username', fave.by_favoritor);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
