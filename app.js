@@ -8,6 +8,7 @@ var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
   , fave = require('./routes/fave')
+  , gallery = require('./routes/gallery')
 
   , http = require('http')
   , path = require('path')
@@ -82,6 +83,8 @@ app.get('/users/search/:username', user.find_by_username);
 app.get('/faves', fave.all_recent);
 app.get('/faves/for/:username', fave.by_favoritee);
 app.get('/faves/by/:username', fave.by_favoritor);
+
+app.get('/gallery', gallery.all_recent);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
