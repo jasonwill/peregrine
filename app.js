@@ -83,9 +83,12 @@ app.get('/users/search/:username', user.find_by_username);
 app.get('/faves', fave.all_recent);
 app.get('/faves/for/:username', fave.by_favoritee);
 app.get('/faves/by/:username', fave.by_favoritor);
+app.get('/faves/hof', fave.hall_of_famers);
 
 app.get('/gallery', gallery.all_recent);
 
+
+// Start it up
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
