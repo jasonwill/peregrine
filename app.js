@@ -1,14 +1,12 @@
+//~ Peregrine :: a speedy node-express REST API ~//
 
-/**
- * Module dependencies.
- */
-
+//~ reqs ~//
 var express = require('express')
 
   , routes = require('./routes')
-  , user = require('./routes/user')
-  , fave = require('./routes/fave')
-  , gallery = require('./routes/gallery')
+  , users = require('./routes/users')
+  , faves = require('./routes/faves')
+  , docs = require('./routes/docs')
 
   , http = require('http')
   , path = require('path')
@@ -18,7 +16,7 @@ var express = require('express')
 
 var app = express();
 
-// all environments
+//~ app config ~//
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'hjs');
@@ -32,21 +30,27 @@ app.use(express.session());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
-/** set default db info */
-app.set('db_host', 'localhost');
-app.set('db_user', 'root');
-app.set('db_pw', '');
-
-app.set('db_schema', 'homeroom_'+app.get('env'));
-
-//~ development only
+//~ development only ~//
 if ('development' == app.get('env')) {
   app.use(express.errorHandler({
     dumpExceptions: true,
     showStack     : true
   }));
 }
-	
+
+
+//**********************************//
+//*********** Database *************//
+//**********************************//
+
+//~ db config ~//
+app.set('db_host', 'localhost');
+app.set('db_user', 'root');
+app.set('db_pw', '');
+
+app.set('db_schema', 'homeroom_'+app.get('env'));
+
+//~ setup db connection pool ~//
 var pool = mysql.createPool({
   host      : app.settings.db_host,
   user      : app.settings.db_user,
@@ -54,6 +58,7 @@ var pool = mysql.createPool({
   database  : app.settings.db_schema
 });
 
+//~ setup db connection pool ~//
 exports.sendQuery = function(q, args, respond){
 
 	try {
@@ -76,21 +81,27 @@ exports.sendQuery = function(q, args, respond){
 };
 
 
-// Routes
+//**********************************//
+//************ Routes **************//
+//**********************************//
+
 app.get('/', routes.index);
-app.get('/users/search/:username', user.find_by_username);
+app.get('/users/:username', users.show);
 
-app.get('/faves', fave.all_recent);
-app.get('/faves/for/:username', fave.by_favoritee);
-app.get('/faves/by/:username', fave.by_favoritor);
-app.get('/faves/hof', fave.hall_of_famers);
+app.get('/faves', faves.index);
+app.get('/faves/:username', faves.show);
 
-app.get('/gallery', gallery.all_recent);
+app.get('/faves/hof', faves.hall_of_famers);
+
+app.get('/docs/:username/faves', docs.by_favoritee);
+
+app.get('/docs', docs.index);
 
 
-// Start it up
+
+//!!! Start it up
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-module.exports = app;
+module.exports = exports.app = app ;
